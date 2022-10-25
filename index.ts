@@ -22,17 +22,23 @@ async function handler(_req: Request): Response {
     // Log
     console.log("Response: [" + r.status + "]");
     
-    // Return
-    var res = await r.text();
-
     // Check null and replace
-    res = res === null? '': res.replace(target_name, host_name);
-    res = await removeAds(res);
+    var res = await r.text();
+    res = res.replace(target_name, host_name);
+
     // Response
-    return new Response(res, {
-        status: r.status === null? 200: r.status,
-        headers: r.headers
-    });
+    const responseArgs = {
+            status: r.status === null? 200: r.status,
+            headers: r.headers
+    };
+
+    if (r.status === 304) {
+        // Null Response
+        return new Response(responseArgs);
+    } else {
+        return new Response(res, responseArgs);
+    }
+    
 }
 
 console.log("Listening on http://localhost:8000");
